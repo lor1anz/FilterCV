@@ -9,8 +9,10 @@ int main(int argc, char *argv[])
   QApplication app (argc, argv);
 
   system_utils::screen screen;
+  int main_window_width = screen.get_width () / 1.5;
+  int main_window_height = screen.get_height () / 1.5;
 
-  gui::window main_window (WINDOW_NAME, screen.get_width (), screen.get_height ());
+  gui::window main_window (WINDOW_NAME, main_window_width, main_window_height);
   main_window.show ();
 
   return app.exec ();
