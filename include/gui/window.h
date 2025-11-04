@@ -1,6 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <QImage>
+
 #include <QWidget>
 
 namespace gui

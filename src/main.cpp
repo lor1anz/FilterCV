@@ -7,6 +7,7 @@
 int main(int argc, char *argv[])
 {
   QApplication app (argc, argv);
+  QApplication::setApplicationName (WINDOW_NAME);
 
   system_utils::screen screen;
   int main_window_width = screen.get_width () / 1.5;
