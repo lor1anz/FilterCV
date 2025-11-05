@@ -1,70 +1,45 @@
 #include "gui/main_window.h"
 
-#include <QString>
-#include <QImage>
-#include <QLabel>
-#include <QPixmap>
+#include <QWidget>
 #include <QVBoxLayout>
 
 #include <opencv2/opencv.hpp>
 
-#include <string>
-
 #include "globals.h"
 #include "system/screen.h"
+#include "gui/image_widget.h"
 #include "gui/utils.h"
 
 namespace gui
 {
 
-main_window::main_window (QWidget *parent) : QWidget (parent)
+main_window::main_window (QWidget *parent) : QMainWindow (parent)
 {
-  setWindowTitle (WINDOW_NAME);
+  build_ui ();
+  show_test_image ();
+}
 
+void main_window::build_ui ()
+{
+  auto *central = new QWidget (this);
+  auto *layout = new QVBoxLayout (central);
+  layout->setContentsMargins (0, 0, 0, 0);
+
+  viewport = new image_widget (central);
+  
   system_utils::screen screen;
-  int main_window_width = screen.get_width () / 1.5;
-  int main_window_height = screen.get_height () / 1.5;
+  int width = screen.get_width () / 1.5;
+  int height = screen.get_height () / 1.5;
 
-  resize (main_window_width, main_window_height);
-
-  auto *layout = new QVBoxLayout (this);
-  layout->setContentsMargins(0, 0, 0, 0);
-
-  image_label = new QLabel (this);
-  image_label->setAlignment (Qt::AlignCenter);
-  image_label->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
-  image_label->setMinimumSize (1, 1);
-
-  layout->addWidget (image_label);
-
-  cv::Mat cvimg (main_window_height, main_window_width, CV_8UC3, cv::Scalar (0, 0, 0));
-  set_image (cvimg);
+  resize (width, height);
+  setWindowTitle (WINDOW_NAME);
 }
 
-void main_window::set_image (const cv::Mat &mat)
+void main_window::show_test_image ()
 {
-  original = cvmat_to_qimage (mat);
-  update_scaled_pixmap ();
+  cv::Mat mat (480, 640, CV_8UC3, cv::Scalar (0, 0, 0));
+  QImage img = cvmat_to_qimage (mat);
+  viewport->set_image (img);
 }
-
-void main_window::resizeEvent (QResizeEvent *event)
-{
-  QWidget::resizeEvent (event);
-  update_scaled_pixmap ();
-}
-
-void main_window::update_scaled_pixmap ()
-{
-  if (original.isNull ())
-    {
-      image_label->clear ();
-      return;
-    }
-
-  const auto scaled = QPixmap::fromImage (original).scaled (size (), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  image_label->setPixmap (scaled);
-}
-
-main_window::~main_window () {}
 
 }
