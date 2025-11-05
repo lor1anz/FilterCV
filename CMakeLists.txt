@@ -21,7 +21,6 @@ set(SOURCES
   # gui
   src/gui/main_window.cpp
   src/gui/image_widget.cpp
-  src/gui/utils.cpp
 
   # system
   src/system/screen.cpp
