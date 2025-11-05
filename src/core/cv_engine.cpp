@@ -69,19 +69,30 @@ bool cv_engine::grab ()
               if (!open ())
                 return false;
             }
+
           cv::Mat frame;
           if (!capture.read (frame) || frame.empty ())
             {
               if (src == source::video)
                 {
+                  capture.set (cv::CAP_PROP_POS_FRAMES, 0);
                   if (!capture.read (frame) || frame.empty ())
-                    return false;
+                    {
+                      const std::string path = video_path.toStdString ();
+                      capture.release ();
+                      if (!capture.open (path))
+                        return false;
+                      capture.set (cv::CAP_PROP_POS_FRAMES, 0);
+                      if (!capture.read (frame) || frame.empty ())
+                        return false;
+                    }
                 }
               else
                 {
                   return false;
                 }
             }
+
           current_bgr = std::move (frame);
           return true;
         }
@@ -89,6 +100,7 @@ bool cv_engine::grab ()
 
   return false;
 }
+
 
 void cv_engine::clear_filters ()
 { 

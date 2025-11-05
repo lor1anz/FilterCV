@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QDockWidget>
+#include <QFormLayout>
 
 #include <opencv2/opencv.hpp>
 
@@ -50,6 +51,8 @@ void main_window::build_ui ()
 
 void main_window::build_dock ()
 {
+  build_source_dock ();
+
   auto *dock = new QDockWidget (tr ("Settings"), this);
   dock->setAllowedAreas (Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -71,15 +74,90 @@ void main_window::build_dock ()
   });
 }
 
+void main_window::build_source_dock ()
+{
+  auto *dock = new QDockWidget (tr ("Source"), this);
+  dock->setAllowedAreas (Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+  auto *panel = new QWidget (dock);
+  auto *v = new QVBoxLayout (panel);
+  v->setContentsMargins (8, 8, 8, 8);
+  v->setSpacing (8);
+
+  rb_image  = new QRadioButton (tr ("Test Image"), panel);
+  rb_video  = new QRadioButton (tr ("Test Video"), panel);
+  rb_camera = new QRadioButton (tr ("Camera"), panel);
+  rb_image->setChecked(true);
+
+  sb_camera_index = new QSpinBox (panel);
+  sb_camera_index->setRange (0, 10);
+  sb_camera_index->setValue (0);
+  sb_camera_index->setEnabled (false);
+
+  v->addWidget (rb_image);
+  v->addWidget (rb_video);
+  v->addWidget (rb_camera);
+  auto *form = new QFormLayout ();
+  form->addRow (tr ("Camera Index"), sb_camera_index);
+  v->addLayout (form);
+  v->addStretch (1);
+
+  panel->setLayout (v);
+  dock->setWidget (panel);
+  addDockWidget (Qt::LeftDockWidgetArea, dock);
+
+  connect(rb_image, &QRadioButton::toggled, this, [this] (bool on) {
+    if (!on) 
+      return;
+    engine->set_source (core::cv_engine::source::image);
+    sb_camera_index->setEnabled (false);
+    engine->close();
+  });
+
+  connect(rb_video, &QRadioButton::toggled, this, [this] (bool on) {
+    if (!on) 
+      return;
+    engine->set_source (core::cv_engine::source::video);
+    sb_camera_index->setEnabled (false);
+
+    engine->set_test_video_file ("../resources/rickroll.mp4");
+    if (!engine->open ())
+      {
+        qWarning() << "Cannot open video";
+      }
+  });
+
+  connect(rb_camera, &QRadioButton::toggled, this, [this] (bool on) {
+    if (!on) 
+      return;
+    engine->set_source (core::cv_engine::source::camera);
+    sb_camera_index->setEnabled (true);
+    engine->set_camera_index (sb_camera_index->value ());
+    engine->open ();
+  });
+
+  connect (sb_camera_index, qOverload<int> (&QSpinBox::valueChanged), this, [this] (int idx) {
+    if (!rb_camera->isChecked ()) 
+      return;
+    engine->set_camera_index (idx);
+    engine->open ();
+  });
+}
+
 void main_window::show_test_image ()
 {
-  cv::Mat mat (480, 640, CV_8UC3, cv::Scalar (0, 0, 0));
-  QImage img = cvmat_to_qimage (mat);
-  viewport->set_image (img);
+  cv::Mat mat = cv::imread ("../resources/shrek.jpg", cv::IMREAD_UNCHANGED);
+  engine->set_test_image (mat);
+  engine->set_source (core::cv_engine::source::image);
 }
 
 void main_window::onTick () 
 {
+  if (!engine) 
+    return;
+  if (!engine->grab()) 
+    return;
+
   const QImage img = engine->process();
   if (!img.isNull ()) 
     viewport->set_image (img);
