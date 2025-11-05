@@ -22,6 +22,9 @@ set(SOURCES
   src/gui/main_window.cpp
   src/gui/image_widget.cpp
 
+  # core
+  src/core/cv_engine.cpp
+
   # system
   src/system/screen.cpp
 )
@@ -37,6 +40,9 @@ set(HEADERS
   # filters
   include/filters/filter.h
   include/filters/grayscale.h
+
+  # core
+  include/core/cv_engine.h
 
   # system
   include/system/screen.h
