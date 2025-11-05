@@ -20,6 +20,7 @@ set(SOURCES
   
   # gui
   src/gui/main_window.cpp
+  src/gui/image_widget.cpp
   src/gui/utils.cpp
 
   # system
@@ -31,6 +32,7 @@ set(HEADERS
   
   # gui
   include/gui/main_window.h
+  include/gui/image_widget.h
   include/gui/utils.h
 
   # system
