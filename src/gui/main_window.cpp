@@ -24,12 +24,17 @@ void main_window::build_ui ()
   auto *central = new QWidget (this);
   auto *layout = new QVBoxLayout (central);
   layout->setContentsMargins (0, 0, 0, 0);
+  layout->setSpacing (0);
 
   viewport = new image_widget (central);
   
   system_utils::screen screen;
   int width = screen.get_width () / 1.5;
   int height = screen.get_height () / 1.5;
+
+  layout->addWidget (viewport, /*stretch*/ 1);
+  central->setLayout (layout);
+  setCentralWidget (central);
 
   resize (width, height);
   setWindowTitle (WINDOW_NAME);

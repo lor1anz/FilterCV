@@ -12,13 +12,17 @@ class image_widget : public QWidget {
 public:
   explicit image_widget (QWidget *parent = nullptr);
 
-  void set_image(const QImage &img);
+  void set_image (const QImage &img);
 
 protected:
-  void paintEvent(QPaintEvent *event) override;
+  void paintEvent (QPaintEvent *event) override;
+  QSize sizeHint () const override { return (image.isNull () ? QSize (hint_width, hint_height) : image.size ()); }
 
 private:
   QImage image;
+
+  int hint_width;
+  int hint_height;
 };
 
 }
