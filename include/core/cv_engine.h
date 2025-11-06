@@ -33,7 +33,6 @@ public:
   void close ();
   bool grab ();
 
-  void set_source_image (const cv::Mat &bgr);
   void clear_filters ();
   void add_filter (std::shared_ptr<filters::filter> filter);
   std::shared_ptr<filters::filter> find_filter (const char *id);
