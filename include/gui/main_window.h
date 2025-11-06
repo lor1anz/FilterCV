@@ -7,6 +7,7 @@
 #include <QRadioButton>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QVBoxLayout>
 
 #include "core/cv_engine.h"
 
@@ -30,7 +31,6 @@ private:
   QCheckBox *cb_grayscale = nullptr;
 
   void build_ui ();
-  void build_dock ();
   void show_test_image ();
 
   QRadioButton *rb_image  = nullptr;
@@ -38,7 +38,10 @@ private:
   QRadioButton *rb_camera = nullptr;
   QSpinBox     *sb_camera_index = nullptr;
 
+  void build_dock ();
   void build_source_dock ();
+
+  void add_grayscale_filter (QVBoxLayout *v, QWidget *panel);
 
 private slots:
   void onTick ();

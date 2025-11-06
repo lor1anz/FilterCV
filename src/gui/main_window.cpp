@@ -12,6 +12,7 @@
 #include "gui/image_widget.h"
 #include "gui/utils.h"
 #include "filters/grayscale.h"
+#include "filters/blur.h"
 
 namespace gui
 {
@@ -23,6 +24,8 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   show_test_image ();
 
   engine->add_filter (std::make_shared<filters::grayscale> ());
+  engine->add_filter (std::make_shared<filters::blur> ());
+
   timer.setInterval (33); // ~ 30 fps
   connect (&timer, &QTimer::timeout, this, &main_window::onTick);
   timer.start ();
@@ -61,13 +64,18 @@ void main_window::build_dock ()
   auto *v = new QVBoxLayout (panel);
   v->setContentsMargins(8, 8, 8, 8);
 
-  cb_grayscale = new QCheckBox (tr ("Grayscale"), panel);
-  v->addWidget (cb_grayscale);
-  v->addStretch (1);
+  add_grayscale_filter (v, panel);
 
   panel->setLayout (v);
   dock->setWidget (panel);
   addDockWidget (Qt::RightDockWidgetArea, dock);
+}
+
+void main_window::add_grayscale_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_grayscale = new QCheckBox (tr ("Grayscale"), panel);
+  v->addWidget (cb_grayscale);
+  v->addStretch (1);
 
   connect (cb_grayscale, &QCheckBox::toggled, this, [this] (bool on) {
     if (auto f = engine->find_filter ("grayscale")) 
