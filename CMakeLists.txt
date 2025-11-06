@@ -44,6 +44,7 @@ set(HEADERS
   include/filters/canny.h
   include/filters/jpeg.h
   include/filters/sharpen.h
+  include/filters/pixel_sort.h
 
   # core
   include/core/cv_engine.h

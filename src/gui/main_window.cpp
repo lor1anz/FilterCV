@@ -20,6 +20,7 @@
 #include "filters/canny.h"
 #include "filters/jpeg.h"
 #include "filters/sharpen.h"
+#include "filters/pixel_sort.h"
 
 namespace gui
 {
@@ -35,6 +36,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::canny> ());
   engine->add_filter (std::make_shared<filters::jpeg> ());
   engine->add_filter (std::make_shared<filters::sharpen> ());
+  engine->add_filter (std::make_shared<filters::pixel_sort> ());
 
   timer.setInterval (33); // ~ 30 fps
   connect (&timer, &QTimer::timeout, this, &main_window::onTick);
@@ -79,6 +81,7 @@ void main_window::build_dock ()
   add_canny_filter (v, panel);
   add_jpeg_filter (v, panel);
   add_sharpen_filter (v, panel);
+  add_pixel_sort_filter (v, panel);
 
   v->addStretch (1);
 
@@ -426,6 +429,75 @@ void main_window::add_sharpen_filter (QVBoxLayout *v, QWidget *panel)
     auto base = engine->find_filter ("sharpen");
     if (auto f = std::dynamic_pointer_cast<filters::sharpen> (base))
       f->set_threshold (val);
+  });
+}
+
+void main_window::add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_pixsort = new QCheckBox (tr ("Pixel sort"), panel);
+  v->addWidget (cb_pixsort);
+
+  cb_pixsort_vertical = new QCheckBox (tr ("Horizontal"), panel);
+  cb_pixsort_reverse  = new QCheckBox (tr ("Reverse"), panel);
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+
+  sl_pixsort_chunk = new QSlider (Qt::Horizontal, panel);
+  sl_pixsort_chunk->setRange (4, 128);
+  sl_pixsort_chunk->setSingleStep (4);
+  sl_pixsort_chunk->setPageStep (8);
+  sl_pixsort_chunk->setTickPosition (QSlider::TicksBelow);
+  sl_pixsort_chunk->setTickInterval (8);
+  sl_pixsort_chunk->setValue (32);
+
+  lb_pixsort_chunk = new QLabel (QString::number (32), panel);
+  lb_pixsort_chunk->setMinimumWidth (28);
+  lb_pixsort_chunk->setAlignment (Qt::AlignRight | Qt::AlignVCenter);
+
+  auto *h = new QHBoxLayout ();
+  h->addWidget (sl_pixsort_chunk, 1);
+  h->addWidget (lb_pixsort_chunk);
+
+  form->addRow (tr ("Chunk"), h);
+  v->addLayout (form);
+  v->addWidget (cb_pixsort_vertical);
+  v->addWidget (cb_pixsort_reverse);
+
+  connect (cb_pixsort, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto base = engine->find_filter ("pixel_sort"))
+      base->set_enabled (on);
+  });
+
+  connect (sl_pixsort_chunk, &QSlider::valueChanged, this, [this] (int k) {
+    lb_pixsort_chunk->setText (QString::number (k));
+    auto base = engine->find_filter ("pixel_sort");
+    if (!base) 
+      return;
+    auto f = std::dynamic_pointer_cast<filters::pixel_sort> (base);
+    if (!f) 
+      return;
+    f->set_chunk (k);
+  });
+
+  connect (cb_pixsort_vertical, &QCheckBox::toggled, this, [this] (bool on) {
+    auto base = engine->find_filter ("pixel_sort");
+    if (!base) 
+      return;
+    auto f = std::dynamic_pointer_cast<filters::pixel_sort> (base);
+    if (!f) 
+      return;
+    f->set_axis (on ? filters::pixel_sort::axis_t::vertical : filters::pixel_sort::axis_t::horizontal);
+  });
+
+  connect (cb_pixsort_reverse, &QCheckBox::toggled, this, [this] (bool on) {
+    auto base = engine->find_filter ("pixel_sort");
+    if (!base) 
+      return;
+    auto f = std::dynamic_pointer_cast<filters::pixel_sort> (base);
+    if (!f) 
+      return;
+    f->set_reverse (on);
   });
 }
 

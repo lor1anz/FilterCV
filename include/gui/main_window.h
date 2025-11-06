@@ -57,7 +57,7 @@ private:
   QCheckBox *cb_jpeg = nullptr;
   QSlider *sl_jpeg_quality = nullptr;
   QLabel *lb_jpeg_quality = nullptr;
-  // Sharpen
+  // sharpen
   QCheckBox *cb_sharpen = nullptr;
   QSlider *sl_sharpen_amount = nullptr;
   QSlider *sl_sharpen_radius = nullptr;
@@ -65,12 +65,19 @@ private:
   QLabel *lb_sharpen_amount = nullptr;
   QLabel *lb_sharpen_radius = nullptr;
   QLabel *lb_sharpen_threshold = nullptr;
+  // pixel sort
+  QCheckBox *cb_pixsort = nullptr;
+  QSlider   *sl_pixsort_chunk = nullptr;
+  QLabel    *lb_pixsort_chunk = nullptr;
+  QCheckBox *cb_pixsort_vertical = nullptr;
+  QCheckBox *cb_pixsort_reverse  = nullptr;
 
   void add_grayscale_filter (QVBoxLayout *v, QWidget *panel);
   void add_blur_filter (QVBoxLayout *v, QWidget *panel);
   void add_canny_filter (QVBoxLayout *v, QWidget *panel);
   void add_jpeg_filter (QVBoxLayout *v, QWidget *panel);
   void add_sharpen_filter (QVBoxLayout *v, QWidget *panel);
+  void add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel);
 
 private slots:
   void onTick ();
