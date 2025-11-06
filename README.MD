@@ -72,3 +72,19 @@ To implement a new filter:
 - The right dock hosts filter controls; the left dock manages the input source.
 
 ---
+
+## Examples
+
+> <p align="center">
+>   <img src="https://github.com/user-attachments/assets/63715776-c47c-49d9-8fea-76fd3f9ead0f" alt="Example 1" width="420">
+>   <img src="https://github.com/user-attachments/assets/e8acbcab-5567-4a77-8df5-bbde32f5a6c5" alt="Example 2" width="420">
+> </p>
+>
+> <p align="center">
+>   <img src="https://github.com/user-attachments/assets/22d84691-4e6f-441f-89a0-b654c4ed61b0" alt="Example 3" width="420">
+>   <img src="https://github.com/user-attachments/assets/c1fb9e50-5d4a-44e2-bfc0-a37d748720a6" alt="Example 4" width="420">
+> </p>
+>
+> <p align="center">
+>   <sub>Left–right: various filters applied in real time</sub>
+> </p>
