@@ -28,7 +28,7 @@ public:
       }
   }
 
-  int ksize () const { return ksize; }
+  int get_ksize () const { return ksize; }
 
   void apply (const cv::Mat &src_bgr, cv::Mat &dst_bgr) override final
   {
