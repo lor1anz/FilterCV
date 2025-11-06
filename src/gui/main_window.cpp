@@ -17,6 +17,7 @@
 #include "gui/utils.h"
 #include "filters/grayscale.h"
 #include "filters/blur.h"
+#include "filters/canny.h"
 
 namespace gui
 {
@@ -29,6 +30,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
 
   engine->add_filter (std::make_shared<filters::grayscale> ());
   engine->add_filter (std::make_shared<filters::blur> ());
+  engine->add_filter (std::make_shared<filters::canny> ());
 
   timer.setInterval (33); // ~ 30 fps
   connect (&timer, &QTimer::timeout, this, &main_window::onTick);
@@ -70,6 +72,7 @@ void main_window::build_dock ()
 
   add_grayscale_filter (v, panel);
   add_blur_filter (v, panel);
+  add_canny_filter (v, panel);
 
   v->addStretch (1);
 
@@ -135,6 +138,102 @@ void main_window::add_blur_filter (QVBoxLayout *v, QWidget *panel)
     f->set_ksize (k);
   });
 }
+
+void main_window::add_canny_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_canny = new QCheckBox (tr ("Canny (Edges)"), panel);
+  v->addWidget (cb_canny);
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+  form->setSpacing (6);
+
+  // Low
+  sl_canny_lo = new QSlider (Qt::Horizontal, panel);
+  sl_canny_lo->setRange (0, 255);
+  sl_canny_lo->setSingleStep (1);
+  sl_canny_lo->setPageStep (5);
+  sl_canny_lo->setTickPosition (QSlider::TicksBelow);
+  sl_canny_lo->setTickInterval (10);
+  sl_canny_lo->setValue (50);
+
+  lb_canny_lo = new QLabel (QString::number (50), panel);
+  lb_canny_lo->setMinimumWidth (30);
+  lb_canny_lo->setAlignment (Qt::AlignRight | Qt::AlignVCenter);
+
+  auto *hLo = new QHBoxLayout ();
+  hLo->setContentsMargins (0, 0, 0, 0);
+  hLo->setSpacing (6);
+  hLo->addWidget (sl_canny_lo, 1);
+  hLo->addWidget (lb_canny_lo);
+  form->addRow (tr ("Low"), hLo);
+
+  // High
+  sl_canny_hi = new QSlider (Qt::Horizontal, panel);
+  sl_canny_hi->setRange (0, 255);
+  sl_canny_hi->setSingleStep (1);
+  sl_canny_hi->setPageStep (5);
+  sl_canny_hi->setTickPosition (QSlider::TicksBelow);
+  sl_canny_hi->setTickInterval (10);
+  sl_canny_hi->setValue (150);
+
+  lb_canny_hi = new QLabel (QString::number (150), panel);
+  lb_canny_hi->setMinimumWidth (30);
+  lb_canny_hi->setAlignment (Qt::AlignRight | Qt::AlignVCenter);
+
+  auto *hHi = new QHBoxLayout ();
+  hHi->setContentsMargins (0, 0, 0, 0);
+  hHi->setSpacing (6);
+  hHi->addWidget (sl_canny_hi, 1);
+  hHi->addWidget (lb_canny_hi);
+  form->addRow (tr ("High"), hHi);
+
+  v->addLayout (form);
+
+  connect (cb_canny, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto base = engine->find_filter ("canny"))
+      base->set_enabled (on);
+  });
+
+  connect (sl_canny_lo, &QSlider::valueChanged, this, [this] (int lo) {
+    lb_canny_lo->setText (QString::number (lo));
+    auto base = engine->find_filter ("canny");
+    if (!base) return;
+    auto f = std::dynamic_pointer_cast<filters::canny> (base);
+    if (!f) return;
+
+    int hi = sl_canny_hi->value ();
+    if (hi < lo)
+      {
+        sl_canny_hi->blockSignals (true);
+        sl_canny_hi->setValue (lo);
+        sl_canny_hi->blockSignals (false);
+        hi = lo;
+        lb_canny_hi->setText (QString::number (hi));
+      }
+    f->set_thresholds (lo, hi);
+  });
+
+  connect (sl_canny_hi, &QSlider::valueChanged, this, [this] (int hi) {
+    lb_canny_hi->setText (QString::number (hi));
+    auto base = engine->find_filter ("canny");
+    if (!base) return;
+    auto f = std::dynamic_pointer_cast<filters::canny> (base);
+    if (!f) return;
+
+    int lo = sl_canny_lo->value ();
+    if (hi < lo)
+      {
+        sl_canny_lo->blockSignals (true);
+        sl_canny_lo->setValue (hi);
+        sl_canny_lo->blockSignals (false);
+        lo = hi;
+        lb_canny_lo->setText (QString::number (lo));
+      }
+    f->set_thresholds (lo, hi);
+  });
+}
+
 
 void main_window::build_source_dock ()
 {

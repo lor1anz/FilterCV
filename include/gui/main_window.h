@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QSlider>
 #include <QLabel>
 
@@ -41,12 +42,21 @@ private:
   void build_dock ();
   void build_source_dock ();
 
+  // grayscale
   QCheckBox *cb_grayscale = nullptr;
+  // blur
   QSlider *sl_blur_ksize = nullptr;
   QLabel *lb_blur_value = nullptr;
+  // canny
+  QCheckBox *cb_canny = nullptr;
+  QSlider *sl_canny_lo = nullptr;
+  QSlider *sl_canny_hi = nullptr;
+  QLabel *lb_canny_lo = nullptr;
+  QLabel *lb_canny_hi = nullptr;
 
   void add_grayscale_filter (QVBoxLayout *v, QWidget *panel);
   void add_blur_filter (QVBoxLayout *v, QWidget *panel);
+  void add_canny_filter (QVBoxLayout *v, QWidget *panel);
 
 private slots:
   void onTick ();

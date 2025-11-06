@@ -41,6 +41,7 @@ set(HEADERS
   include/filters/filter.h
   include/filters/grayscale.h
   include/filters/blur.h
+  include/filters/canny.h
 
   # core
   include/core/cv_engine.h
