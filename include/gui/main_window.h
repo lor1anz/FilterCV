@@ -57,11 +57,20 @@ private:
   QCheckBox *cb_jpeg = nullptr;
   QSlider *sl_jpeg_quality = nullptr;
   QLabel *lb_jpeg_quality = nullptr;
+  // Sharpen
+  QCheckBox *cb_sharpen = nullptr;
+  QSlider *sl_sharpen_amount = nullptr;
+  QSlider *sl_sharpen_radius = nullptr;
+  QSlider *sl_sharpen_threshold = nullptr;
+  QLabel *lb_sharpen_amount = nullptr;
+  QLabel *lb_sharpen_radius = nullptr;
+  QLabel *lb_sharpen_threshold = nullptr;
 
   void add_grayscale_filter (QVBoxLayout *v, QWidget *panel);
   void add_blur_filter (QVBoxLayout *v, QWidget *panel);
   void add_canny_filter (QVBoxLayout *v, QWidget *panel);
   void add_jpeg_filter (QVBoxLayout *v, QWidget *panel);
+  void add_sharpen_filter (QVBoxLayout *v, QWidget *panel);
 
 private slots:
   void onTick ();

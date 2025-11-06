@@ -19,6 +19,7 @@
 #include "filters/blur.h"
 #include "filters/canny.h"
 #include "filters/jpeg.h"
+#include "filters/sharpen.h"
 
 namespace gui
 {
@@ -33,6 +34,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::blur> ());
   engine->add_filter (std::make_shared<filters::canny> ());
   engine->add_filter (std::make_shared<filters::jpeg> ());
+  engine->add_filter (std::make_shared<filters::sharpen> ());
 
   timer.setInterval (33); // ~ 30 fps
   connect (&timer, &QTimer::timeout, this, &main_window::onTick);
@@ -76,6 +78,7 @@ void main_window::build_dock ()
   add_blur_filter (v, panel);
   add_canny_filter (v, panel);
   add_jpeg_filter (v, panel);
+  add_sharpen_filter (v, panel);
 
   v->addStretch (1);
 
@@ -353,6 +356,76 @@ void main_window::add_jpeg_filter (QVBoxLayout *v, QWidget *panel)
     auto f = std::dynamic_pointer_cast<filters::jpeg> (base);
     if (!f) return;
     f->set_quality (q);
+  });
+}
+
+void main_window::add_sharpen_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_sharpen = new QCheckBox (tr ("Sharpen"), panel);
+  v->addWidget (cb_sharpen);
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+  form->setSpacing (6);
+
+  sl_sharpen_amount = new QSlider (Qt::Horizontal, panel);
+  sl_sharpen_amount->setRange (0, 300);
+  sl_sharpen_amount->setValue (100);
+  lb_sharpen_amount = new QLabel (QString::number (1.00, 'f', 2), panel);
+
+  auto *hA = new QHBoxLayout ();
+  hA->addWidget (sl_sharpen_amount, 1);
+  hA->addWidget (lb_sharpen_amount);
+  form->addRow (tr ("Amount"), hA);
+
+  sl_sharpen_radius = new QSlider (Qt::Horizontal, panel);
+  sl_sharpen_radius->setRange (1, 15);
+  sl_sharpen_radius->setValue (3);
+  lb_sharpen_radius = new QLabel (QString::number (3), panel);
+
+  auto *hR = new QHBoxLayout ();
+  hR->addWidget (sl_sharpen_radius, 1);
+  hR->addWidget (lb_sharpen_radius);
+  form->addRow (tr ("Radius"), hR);
+
+  sl_sharpen_threshold = new QSlider (Qt::Horizontal, panel);
+  sl_sharpen_threshold->setRange (0, 255);
+  sl_sharpen_threshold->setValue (10);
+  lb_sharpen_threshold = new QLabel (QString::number (10), panel);
+
+  auto *hT = new QHBoxLayout ();
+  hT->addWidget (sl_sharpen_threshold, 1);
+  hT->addWidget (lb_sharpen_threshold);
+  form->addRow (tr ("Threshold"), hT);
+
+  v->addLayout (form);
+
+  connect (cb_sharpen, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto base = engine->find_filter ("sharpen"))
+      base->set_enabled (on);
+  });
+
+  connect (sl_sharpen_amount, &QSlider::valueChanged, this, [this] (int val) {
+    double amount = val / 100.0;
+    lb_sharpen_amount->setText (QString::number (amount, 'f', 2));
+
+    auto base = engine->find_filter ("sharpen");
+    if (auto f = std::dynamic_pointer_cast<filters::sharpen> (base))
+      f->set_amount (amount);
+  });
+
+  connect (sl_sharpen_radius, &QSlider::valueChanged, this, [this] (int val) {
+    lb_sharpen_radius->setText (QString::number (val));
+    auto base = engine->find_filter ("sharpen");
+    if (auto f = std::dynamic_pointer_cast<filters::sharpen> (base))
+      f->set_radius (val);
+  });
+
+  connect (sl_sharpen_threshold, &QSlider::valueChanged, this, [this] (int val) {
+    lb_sharpen_threshold->setText (QString::number (val));
+    auto base = engine->find_filter ("sharpen");
+    if (auto f = std::dynamic_pointer_cast<filters::sharpen> (base))
+      f->set_threshold (val);
   });
 }
 

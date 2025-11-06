@@ -43,6 +43,7 @@ set(HEADERS
   include/filters/blur.h
   include/filters/canny.h
   include/filters/jpeg.h
+  include/filters/sharpen.h
 
   # core
   include/core/cv_engine.h
