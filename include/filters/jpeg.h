@@ -9,10 +9,10 @@ namespace filters
 class jpeg : public filter
 {
 public:
-  const char *id () const override final { return "jpeg"; }
+  const char *id () const override { return "jpeg"; }
 
-  bool is_enabled () const override final { return enabled; }
-  void set_enabled (bool on) override final { enabled = on; }
+  bool is_enabled () const override { return enabled; }
+  void set_enabled (bool on) override { enabled = on; }
 
   void set_quality (int q)
   {

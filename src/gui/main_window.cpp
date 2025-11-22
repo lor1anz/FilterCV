@@ -22,6 +22,8 @@
 #include "filters/sharpen.h"
 #include "filters/pixel_sort.h"
 
+#include "filters/glitch.h"
+
 namespace gui
 {
 
@@ -37,6 +39,8 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::jpeg> ());
   engine->add_filter (std::make_shared<filters::sharpen> ());
   engine->add_filter (std::make_shared<filters::pixel_sort> ());
+
+  engine->add_filter (std::make_shared<filters::glitch> ());
 
   timer.setInterval (33); // ~ 30 fps
   connect (&timer, &QTimer::timeout, this, &main_window::onTick);
@@ -83,11 +87,24 @@ void main_window::build_dock ()
   add_sharpen_filter (v, panel);
   add_pixel_sort_filter (v, panel);
 
+  add_glitch_filter (v, panel);
+
   v->addStretch (1);
 
   panel->setLayout (v);
   dock->setWidget (panel);
   addDockWidget (Qt::RightDockWidgetArea, dock);
+}
+
+void main_window::add_glitch_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_glitch = new QCheckBox (tr ("Glitch"), panel);
+  v->addWidget (cb_glitch);
+
+  connect (cb_glitch, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto base = engine->find_filter ("glitch"))
+      base->set_enabled (on);
+  });
 }
 
 void main_window::add_grayscale_filter (QVBoxLayout *v, QWidget *panel)

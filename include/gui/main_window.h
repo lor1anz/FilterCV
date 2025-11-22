@@ -72,12 +72,17 @@ private:
   QCheckBox *cb_pixsort_vertical = nullptr;
   QCheckBox *cb_pixsort_reverse  = nullptr;
 
+  // glitch
+  QCheckBox *cb_glitch = nullptr;
+
   void add_grayscale_filter (QVBoxLayout *v, QWidget *panel);
   void add_blur_filter (QVBoxLayout *v, QWidget *panel);
   void add_canny_filter (QVBoxLayout *v, QWidget *panel);
   void add_jpeg_filter (QVBoxLayout *v, QWidget *panel);
   void add_sharpen_filter (QVBoxLayout *v, QWidget *panel);
   void add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel);
+
+  void add_glitch_filter (QVBoxLayout *v, QWidget *panel);
 
 private slots:
   void onTick ();

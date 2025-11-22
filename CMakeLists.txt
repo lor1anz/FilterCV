@@ -46,6 +46,8 @@ set(HEADERS
   include/filters/sharpen.h
   include/filters/pixel_sort.h
 
+  include/filters/glitch.h
+
   # core
   include/core/cv_engine.h
 
