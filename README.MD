@@ -17,6 +17,8 @@ The project uses **Qt** for the GUI layer and **OpenCV** for image processing.
 - **Interactive GUI** — control filter parameters via checkboxes and sliders in dock panels.  
 - **Multiple input sources** — switch between a test image, a test video file, or a camera stream.  
 - **Expandable architecture** — easily add new filters with minimal boilerplate.
+- **Dedicated Glitch Filter panel** - a separate dock widget that controls the **Glitch Filter**, a composite effect combining JPEG recompression, color-channel shifting, block displacement and saturation / noise alterations.
+
 
 ---
 
