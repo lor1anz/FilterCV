@@ -21,6 +21,7 @@
 #include "filters/jpeg.h"
 #include "filters/sharpen.h"
 #include "filters/pixel_sort.h"
+#include "filters/threshold.h"
 
 #include "filters/glitch.h"
 
@@ -39,6 +40,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::jpeg> ());
   engine->add_filter (std::make_shared<filters::sharpen> ());
   engine->add_filter (std::make_shared<filters::pixel_sort> ());
+  engine->add_filter (std::make_shared<filters::threshold> ());
 
   engine->add_filter (std::make_shared<filters::glitch> ());
 
@@ -87,6 +89,7 @@ void main_window::build_dock ()
   add_jpeg_filter (v, panel);
   add_sharpen_filter (v, panel);
   add_pixel_sort_filter (v, panel);
+  add_threshold_filter (v, panel);
 
   v->addStretch (1);
 
@@ -550,6 +553,94 @@ void main_window::add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel)
     f->set_reverse (on);
   });
 }
+
+void main_window::add_threshold_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_threshold = new QCheckBox (tr ("Threshold"), panel);
+  v->addWidget (cb_threshold);
+
+  cb_threshold_mode = new QComboBox (panel);
+  cb_threshold_mode->addItem ("Binary");
+  cb_threshold_mode->addItem ("Adaptive Mean");
+  cb_threshold_mode->addItem ("Adaptive Gaussian");
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+  form->addRow (tr ("Mode"), cb_threshold_mode);
+
+  // threshold value
+  sl_threshold_value = new QSlider (Qt::Horizontal, panel);
+  sl_threshold_value->setRange (0, 255);
+  sl_threshold_value->setValue (128);
+  lb_threshold_value = new QLabel ("128", panel);
+
+  auto *h1 = new QHBoxLayout ();
+  h1->addWidget (sl_threshold_value, 1);
+  h1->addWidget (lb_threshold_value);
+  form->addRow (tr ("Value"), h1);
+
+  // block size
+  sl_threshold_block = new QSlider (Qt::Horizontal, panel);
+  sl_threshold_block->setRange (3, 31);
+  sl_threshold_block->setSingleStep (2);
+  sl_threshold_block->setValue (11);
+  lb_threshold_block = new QLabel ("11", panel);
+
+  auto *h2 = new QHBoxLayout ();
+  h2->addWidget (sl_threshold_block, 1);
+  h2->addWidget (lb_threshold_block);
+  form->addRow (tr ("Block size"), h2);
+
+  // C
+  sl_threshold_c = new QSlider (Qt::Horizontal, panel);
+  sl_threshold_c->setRange (-20, 20);
+  sl_threshold_c->setValue (2);
+  lb_threshold_c = new QLabel ("2", panel);
+
+  auto *h3 = new QHBoxLayout ();
+  h3->addWidget (sl_threshold_c, 1);
+  h3->addWidget (lb_threshold_c);
+  form->addRow (tr ("C"), h3);
+
+  v->addLayout (form);
+
+  // connections
+  connect (cb_threshold, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto f = engine->find_filter ("threshold"))
+      f->set_enabled (on);
+  });
+
+  connect (cb_threshold_mode, QOverload<int>::of (&QComboBox::currentIndexChanged),
+           this, [this] (int idx) {
+    auto f = std::dynamic_pointer_cast<filters::threshold> (
+      engine->find_filter ("threshold"));
+    if (!f) return;
+    f->set_mode (static_cast<filters::threshold::mode_t> (idx));
+  });
+
+  connect (sl_threshold_value, &QSlider::valueChanged, this, [this] (int v) {
+    lb_threshold_value->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::threshold> (
+      engine->find_filter ("threshold"));
+    if (f) f->set_thresh (v);
+  });
+
+  connect (sl_threshold_block, &QSlider::valueChanged, this, [this] (int v) {
+    if ((v % 2) == 0) v++;
+    lb_threshold_block->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::threshold> (
+      engine->find_filter ("threshold"));
+    if (f) f->set_block_size (v);
+  });
+
+  connect (sl_threshold_c, &QSlider::valueChanged, this, [this] (int v) {
+    lb_threshold_c->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::threshold> (
+      engine->find_filter ("threshold"));
+    if (f) f->set_c (v);
+  });
+}
+
 
 void main_window::show_test_image ()
 {

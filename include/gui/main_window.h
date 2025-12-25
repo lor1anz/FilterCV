@@ -11,6 +11,7 @@
 #include <QHBoxLayout>
 #include <QSlider>
 #include <QLabel>
+#include <QComboBox>
 
 #include "core/cv_engine.h"
 
@@ -71,6 +72,16 @@ private:
   QLabel    *lb_pixsort_chunk = nullptr;
   QCheckBox *cb_pixsort_vertical = nullptr;
   QCheckBox *cb_pixsort_reverse  = nullptr;
+  // threshold
+  // Threshold UI
+  QCheckBox *cb_threshold = nullptr;
+  QComboBox *cb_threshold_mode = nullptr;
+  QSlider   *sl_threshold_value = nullptr;
+  QLabel    *lb_threshold_value = nullptr;
+  QSlider   *sl_threshold_block = nullptr;
+  QLabel    *lb_threshold_block = nullptr;
+  QSlider   *sl_threshold_c = nullptr;
+  QLabel    *lb_threshold_c = nullptr;
 
   // glitch
   QCheckBox *cb_glitch = nullptr;
@@ -81,6 +92,7 @@ private:
   void add_jpeg_filter (QVBoxLayout *v, QWidget *panel);
   void add_sharpen_filter (QVBoxLayout *v, QWidget *panel);
   void add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel);
+  void add_threshold_filter (QVBoxLayout *v, QWidget *panel);
 
   void build_glitch_dock ();
   void add_glitch_filter (QVBoxLayout *v, QWidget *panel);
