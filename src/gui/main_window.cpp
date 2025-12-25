@@ -24,6 +24,7 @@
 #include "filters/threshold.h"
 #include "filters/morphology.h"
 #include "filters/contours.h"
+#include "filters/keypoints.h"
 
 #include "filters/glitch.h"
 
@@ -45,6 +46,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::threshold> ());
   engine->add_filter (std::make_shared<filters::morphology> ());
   engine->add_filter (std::make_shared<filters::contours> ());
+  engine->add_filter (std::make_shared<filters::keypoints> ());
 
   engine->add_filter (std::make_shared<filters::glitch> ());
 
@@ -96,6 +98,7 @@ void main_window::build_dock ()
   add_threshold_filter (v, panel);
   add_morphology_filter (v, panel);
   add_contours_filter (v, panel);
+  add_keypoints_filter (v, panel);
 
   v->addStretch (1);
 
@@ -770,6 +773,74 @@ void main_window::add_contours_filter (QVBoxLayout *v, QWidget *panel)
     auto f = std::dynamic_pointer_cast<filters::contours> (
       engine->find_filter ("contours"));
     if (f) f->set_min_area (v);
+  });
+}
+
+void main_window::add_keypoints_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_keypoints = new QCheckBox (tr ("Keypoints"), panel);
+  v->addWidget (cb_keypoints);
+
+  cb_keypoints_type = new QComboBox (panel);
+  cb_keypoints_type->addItem ("FAST");
+  cb_keypoints_type->addItem ("ORB");
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+  form->addRow (tr ("Detector"), cb_keypoints_type);
+
+  // threshold (FAST)
+  sl_keypoints_thresh = new QSlider (Qt::Horizontal, panel);
+  sl_keypoints_thresh->setRange (1, 100);
+  sl_keypoints_thresh->setValue (20);
+  lb_keypoints_thresh = new QLabel ("20", panel);
+
+  auto *h1 = new QHBoxLayout ();
+  h1->addWidget (sl_keypoints_thresh, 1);
+  h1->addWidget (lb_keypoints_thresh);
+  form->addRow (tr ("Threshold"), h1);
+
+  // max features (ORB)
+  sl_keypoints_max = new QSlider (Qt::Horizontal, panel);
+  sl_keypoints_max->setRange (50, 3000);
+  sl_keypoints_max->setValue (500);
+  lb_keypoints_max = new QLabel ("500", panel);
+
+  auto *h2 = new QHBoxLayout ();
+  h2->addWidget (sl_keypoints_max, 1);
+  h2->addWidget (lb_keypoints_max);
+  form->addRow (tr ("Max features"), h2);
+
+  v->addLayout (form);
+
+  // connections
+  connect (cb_keypoints, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto f = engine->find_filter ("keypoints"))
+      f->set_enabled (on);
+  });
+
+  connect (cb_keypoints_type, QOverload<int>::of (&QComboBox::currentIndexChanged),
+           this, [this] (int idx) {
+    auto f = std::dynamic_pointer_cast<filters::keypoints> (
+      engine->find_filter ("keypoints"));
+    if (f) f->set_detector (
+      idx == 0 ? filters::keypoints::detector_t::fast
+               : filters::keypoints::detector_t::orb
+    );
+  });
+
+  connect (sl_keypoints_thresh, &QSlider::valueChanged, this, [this] (int v) {
+    lb_keypoints_thresh->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::keypoints> (
+      engine->find_filter ("keypoints"));
+    if (f) f->set_threshold (v);
+  });
+
+  connect (sl_keypoints_max, &QSlider::valueChanged, this, [this] (int v) {
+    lb_keypoints_max->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::keypoints> (
+      engine->find_filter ("keypoints"));
+    if (f) f->set_max_features (v);
   });
 }
 

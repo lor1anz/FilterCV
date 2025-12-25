@@ -48,6 +48,7 @@ set(HEADERS
   include/filters/threshold.h
   include/filters/morphology.h
   include/filters/contours.h
+  include/filters/keypoints.h
 
   include/filters/glitch.h
 

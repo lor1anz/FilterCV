@@ -94,6 +94,13 @@ private:
   QSlider   *sl_contours_area = nullptr;
   QLabel    *lb_contours_area = nullptr;
   QCheckBox *cb_contours_approx = nullptr;
+  // keypoints
+  QCheckBox *cb_keypoints = nullptr;
+  QComboBox *cb_keypoints_type = nullptr;
+  QSlider   *sl_keypoints_thresh = nullptr;
+  QLabel    *lb_keypoints_thresh = nullptr;
+  QSlider   *sl_keypoints_max = nullptr;
+  QLabel    *lb_keypoints_max = nullptr;
 
   // glitch
   QCheckBox *cb_glitch = nullptr;
@@ -107,6 +114,7 @@ private:
   void add_threshold_filter (QVBoxLayout *v, QWidget *panel);
   void add_morphology_filter (QVBoxLayout *v, QWidget *panel);
   void add_contours_filter (QVBoxLayout *v, QWidget *panel);
+  void add_keypoints_filter (QVBoxLayout *v, QWidget *panel);
 
   void build_glitch_dock ();
   void add_glitch_filter (QVBoxLayout *v, QWidget *panel);
