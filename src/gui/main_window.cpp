@@ -22,6 +22,7 @@
 #include "filters/sharpen.h"
 #include "filters/pixel_sort.h"
 #include "filters/threshold.h"
+#include "filters/morphology.h"
 
 #include "filters/glitch.h"
 
@@ -41,6 +42,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::sharpen> ());
   engine->add_filter (std::make_shared<filters::pixel_sort> ());
   engine->add_filter (std::make_shared<filters::threshold> ());
+  engine->add_filter (std::make_shared<filters::morphology> ());
 
   engine->add_filter (std::make_shared<filters::glitch> ());
 
@@ -90,6 +92,7 @@ void main_window::build_dock ()
   add_sharpen_filter (v, panel);
   add_pixel_sort_filter (v, panel);
   add_threshold_filter (v, panel);
+  add_morphology_filter (v, panel);
 
   v->addStretch (1);
 
@@ -641,6 +644,67 @@ void main_window::add_threshold_filter (QVBoxLayout *v, QWidget *panel)
   });
 }
 
+void main_window::add_morphology_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_morph = new QCheckBox (tr ("Morphology"), panel);
+  v->addWidget (cb_morph);
+
+  cb_morph_op = new QComboBox (panel);
+  cb_morph_op->addItem ("Erode");
+  cb_morph_op->addItem ("Dilate");
+  cb_morph_op->addItem ("Open");
+  cb_morph_op->addItem ("Close");
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+  form->addRow (tr ("Operation"), cb_morph_op);
+
+  sl_morph_kernel = new QSlider (Qt::Horizontal, panel);
+  sl_morph_kernel->setRange (1, 21);
+  sl_morph_kernel->setSingleStep (2);
+  sl_morph_kernel->setValue (3);
+  lb_morph_kernel = new QLabel ("3", panel);
+
+  auto *h1 = new QHBoxLayout ();
+  h1->addWidget (sl_morph_kernel, 1);
+  h1->addWidget (lb_morph_kernel);
+  form->addRow (tr ("Kernel size"), h1);
+
+  sb_morph_iter = new QSpinBox (panel);
+  sb_morph_iter->setRange (1, 10);
+  sb_morph_iter->setValue (1);
+  form->addRow (tr ("Iterations"), sb_morph_iter);
+
+  v->addLayout (form);
+
+  // connections
+  connect (cb_morph, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto f = engine->find_filter ("morphology"))
+      f->set_enabled (on);
+  });
+
+  connect (cb_morph_op, QOverload<int>::of (&QComboBox::currentIndexChanged),
+           this, [this] (int idx) {
+    auto f = std::dynamic_pointer_cast<filters::morphology> (
+      engine->find_filter ("morphology"));
+    if (f) f->set_op (static_cast<filters::morphology::op_t> (idx));
+  });
+
+  connect (sl_morph_kernel, &QSlider::valueChanged, this, [this] (int v) {
+    if ((v % 2) == 0) v++;
+    lb_morph_kernel->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::morphology> (
+      engine->find_filter ("morphology"));
+    if (f) f->set_kernel_size (v);
+  });
+
+  connect (sb_morph_iter, QOverload<int>::of (&QSpinBox::valueChanged),
+           this, [this] (int v) {
+    auto f = std::dynamic_pointer_cast<filters::morphology> (
+      engine->find_filter ("morphology"));
+    if (f) f->set_iterations (v);
+  });
+}
 
 void main_window::show_test_image ()
 {

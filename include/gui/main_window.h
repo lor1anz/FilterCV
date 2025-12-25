@@ -73,7 +73,6 @@ private:
   QCheckBox *cb_pixsort_vertical = nullptr;
   QCheckBox *cb_pixsort_reverse  = nullptr;
   // threshold
-  // Threshold UI
   QCheckBox *cb_threshold = nullptr;
   QComboBox *cb_threshold_mode = nullptr;
   QSlider   *sl_threshold_value = nullptr;
@@ -82,6 +81,12 @@ private:
   QLabel    *lb_threshold_block = nullptr;
   QSlider   *sl_threshold_c = nullptr;
   QLabel    *lb_threshold_c = nullptr;
+  // morphology
+  QCheckBox *cb_morph = nullptr;
+  QComboBox *cb_morph_op = nullptr;
+  QSlider   *sl_morph_kernel = nullptr;
+  QLabel    *lb_morph_kernel = nullptr;
+  QSpinBox  *sb_morph_iter = nullptr;
 
   // glitch
   QCheckBox *cb_glitch = nullptr;
@@ -93,6 +98,7 @@ private:
   void add_sharpen_filter (QVBoxLayout *v, QWidget *panel);
   void add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel);
   void add_threshold_filter (QVBoxLayout *v, QWidget *panel);
+  void add_morphology_filter (QVBoxLayout *v, QWidget *panel);
 
   void build_glitch_dock ();
   void add_glitch_filter (QVBoxLayout *v, QWidget *panel);

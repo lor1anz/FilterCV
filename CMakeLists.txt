@@ -46,6 +46,7 @@ set(HEADERS
   include/filters/sharpen.h
   include/filters/pixel_sort.h
   include/filters/threshold.h
+  include/filters/morphology.h
 
   include/filters/glitch.h
 
