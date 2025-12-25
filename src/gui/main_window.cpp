@@ -23,6 +23,7 @@
 #include "filters/pixel_sort.h"
 #include "filters/threshold.h"
 #include "filters/morphology.h"
+#include "filters/contours.h"
 
 #include "filters/glitch.h"
 
@@ -43,6 +44,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::pixel_sort> ());
   engine->add_filter (std::make_shared<filters::threshold> ());
   engine->add_filter (std::make_shared<filters::morphology> ());
+  engine->add_filter (std::make_shared<filters::contours> ());
 
   engine->add_filter (std::make_shared<filters::glitch> ());
 
@@ -93,6 +95,7 @@ void main_window::build_dock ()
   add_pixel_sort_filter (v, panel);
   add_threshold_filter (v, panel);
   add_morphology_filter (v, panel);
+  add_contours_filter (v, panel);
 
   v->addStretch (1);
 
@@ -703,6 +706,70 @@ void main_window::add_morphology_filter (QVBoxLayout *v, QWidget *panel)
     auto f = std::dynamic_pointer_cast<filters::morphology> (
       engine->find_filter ("morphology"));
     if (f) f->set_iterations (v);
+  });
+}
+
+void main_window::add_contours_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_contours = new QCheckBox (tr ("Contours"), panel);
+  v->addWidget (cb_contours);
+
+  cb_contours_approx = new QCheckBox (tr ("Draw approximation"), panel);
+  cb_contours_approx->setChecked (true);
+  v->addWidget (cb_contours_approx);
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+
+  // epsilon
+  sl_contours_eps = new QSlider (Qt::Horizontal, panel);
+  sl_contours_eps->setRange (1, 50); // 0.001 .. 0.05
+  sl_contours_eps->setValue (20);
+  lb_contours_eps = new QLabel ("0.02", panel);
+
+  auto *h1 = new QHBoxLayout ();
+  h1->addWidget (sl_contours_eps, 1);
+  h1->addWidget (lb_contours_eps);
+  form->addRow (tr ("Epsilon"), h1);
+
+  // area
+  sl_contours_area = new QSlider (Qt::Horizontal, panel);
+  sl_contours_area->setRange (0, 5000);
+  sl_contours_area->setValue (100);
+  lb_contours_area = new QLabel ("100", panel);
+
+  auto *h2 = new QHBoxLayout ();
+  h2->addWidget (sl_contours_area, 1);
+  h2->addWidget (lb_contours_area);
+  form->addRow (tr ("Min area"), h2);
+
+  v->addLayout (form);
+
+  // connections
+  connect (cb_contours, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto f = engine->find_filter ("contours"))
+      f->set_enabled (on);
+  });
+
+  connect (cb_contours_approx, &QCheckBox::toggled, this, [this] (bool on) {
+    auto f = std::dynamic_pointer_cast<filters::contours> (
+      engine->find_filter ("contours"));
+    if (f) f->set_draw_approx (on);
+  });
+
+  connect (sl_contours_eps, &QSlider::valueChanged, this, [this] (int v) {
+    const double eps = v / 1000.0;
+    lb_contours_eps->setText (QString::number (eps, 'f', 3));
+    auto f = std::dynamic_pointer_cast<filters::contours> (
+      engine->find_filter ("contours"));
+    if (f) f->set_epsilon (eps);
+  });
+
+  connect (sl_contours_area, &QSlider::valueChanged, this, [this] (int v) {
+    lb_contours_area->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::contours> (
+      engine->find_filter ("contours"));
+    if (f) f->set_min_area (v);
   });
 }
 

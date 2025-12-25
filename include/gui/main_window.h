@@ -87,6 +87,13 @@ private:
   QSlider   *sl_morph_kernel = nullptr;
   QLabel    *lb_morph_kernel = nullptr;
   QSpinBox  *sb_morph_iter = nullptr;
+  // contours
+  QCheckBox *cb_contours = nullptr;
+  QSlider   *sl_contours_eps = nullptr;
+  QLabel    *lb_contours_eps = nullptr;
+  QSlider   *sl_contours_area = nullptr;
+  QLabel    *lb_contours_area = nullptr;
+  QCheckBox *cb_contours_approx = nullptr;
 
   // glitch
   QCheckBox *cb_glitch = nullptr;
@@ -99,6 +106,7 @@ private:
   void add_pixel_sort_filter (QVBoxLayout *v, QWidget *panel);
   void add_threshold_filter (QVBoxLayout *v, QWidget *panel);
   void add_morphology_filter (QVBoxLayout *v, QWidget *panel);
+  void add_contours_filter (QVBoxLayout *v, QWidget *panel);
 
   void build_glitch_dock ();
   void add_glitch_filter (QVBoxLayout *v, QWidget *panel);

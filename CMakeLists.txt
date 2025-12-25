@@ -47,6 +47,7 @@ set(HEADERS
   include/filters/pixel_sort.h
   include/filters/threshold.h
   include/filters/morphology.h
+  include/filters/contours.h
 
   include/filters/glitch.h
 
