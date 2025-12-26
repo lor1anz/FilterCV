@@ -101,6 +101,16 @@ private:
   QLabel    *lb_keypoints_thresh = nullptr;
   QSlider   *sl_keypoints_max = nullptr;
   QLabel    *lb_keypoints_max = nullptr;
+  // affine
+  QCheckBox *cb_affine = nullptr;
+  QSlider   *sl_affine_angle = nullptr;
+  QLabel    *lb_affine_angle = nullptr;
+  QSlider   *sl_affine_scale = nullptr;
+  QLabel    *lb_affine_scale = nullptr;
+  QSlider   *sl_affine_tx = nullptr;
+  QLabel    *lb_affine_tx = nullptr;
+  QSlider   *sl_affine_ty = nullptr;
+  QLabel    *lb_affine_ty = nullptr;
 
   // glitch
   QCheckBox *cb_glitch = nullptr;
@@ -115,6 +125,7 @@ private:
   void add_morphology_filter (QVBoxLayout *v, QWidget *panel);
   void add_contours_filter (QVBoxLayout *v, QWidget *panel);
   void add_keypoints_filter (QVBoxLayout *v, QWidget *panel);
+  void add_affine_filter (QVBoxLayout *v, QWidget *panel);
 
   void build_glitch_dock ();
   void add_glitch_filter (QVBoxLayout *v, QWidget *panel);

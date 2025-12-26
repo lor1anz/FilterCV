@@ -25,6 +25,7 @@
 #include "filters/morphology.h"
 #include "filters/contours.h"
 #include "filters/keypoints.h"
+#include "filters/affine.h"
 
 #include "filters/glitch.h"
 
@@ -47,6 +48,7 @@ main_window::main_window (QWidget *parent) : QMainWindow (parent), engine (std::
   engine->add_filter (std::make_shared<filters::morphology> ());
   engine->add_filter (std::make_shared<filters::contours> ());
   engine->add_filter (std::make_shared<filters::keypoints> ());
+  engine->add_filter (std::make_shared<filters::affine> ());
 
   engine->add_filter (std::make_shared<filters::glitch> ());
 
@@ -99,6 +101,7 @@ void main_window::build_dock ()
   add_morphology_filter (v, panel);
   add_contours_filter (v, panel);
   add_keypoints_filter (v, panel);
+  add_affine_filter (v, panel);
 
   v->addStretch (1);
 
@@ -841,6 +844,96 @@ void main_window::add_keypoints_filter (QVBoxLayout *v, QWidget *panel)
     auto f = std::dynamic_pointer_cast<filters::keypoints> (
       engine->find_filter ("keypoints"));
     if (f) f->set_max_features (v);
+  });
+}
+
+void main_window::add_affine_filter (QVBoxLayout *v, QWidget *panel)
+{
+  cb_affine = new QCheckBox (tr ("Affine transform"), panel);
+  v->addWidget (cb_affine);
+
+  auto *form = new QFormLayout ();
+  form->setContentsMargins (0, 0, 0, 0);
+
+  // angle
+  sl_affine_angle = new QSlider (Qt::Horizontal, panel);
+  sl_affine_angle->setRange (-180, 180);
+  sl_affine_angle->setValue (0);
+  lb_affine_angle = new QLabel ("0", panel);
+
+  auto *h1 = new QHBoxLayout ();
+  h1->addWidget (sl_affine_angle, 1);
+  h1->addWidget (lb_affine_angle);
+  form->addRow (tr ("Angle"), h1);
+
+  // scale
+  sl_affine_scale = new QSlider (Qt::Horizontal, panel);
+  sl_affine_scale->setRange (10, 300); // ×0.01
+  sl_affine_scale->setValue (100);
+  lb_affine_scale = new QLabel ("1.00", panel);
+
+  auto *h2 = new QHBoxLayout ();
+  h2->addWidget (sl_affine_scale, 1);
+  h2->addWidget (lb_affine_scale);
+  form->addRow (tr ("Scale"), h2);
+
+  // translation X
+  sl_affine_tx = new QSlider (Qt::Horizontal, panel);
+  sl_affine_tx->setRange (-300, 300);
+  sl_affine_tx->setValue (0);
+  lb_affine_tx = new QLabel ("0", panel);
+
+  auto *h3 = new QHBoxLayout ();
+  h3->addWidget (sl_affine_tx, 1);
+  h3->addWidget (lb_affine_tx);
+  form->addRow (tr ("Translate X"), h3);
+
+  // translation Y
+  sl_affine_ty = new QSlider (Qt::Horizontal, panel);
+  sl_affine_ty->setRange (-300, 300);
+  sl_affine_ty->setValue (0);
+  lb_affine_ty = new QLabel ("0", panel);
+
+  auto *h4 = new QHBoxLayout ();
+  h4->addWidget (sl_affine_ty, 1);
+  h4->addWidget (lb_affine_ty);
+  form->addRow (tr ("Translate Y"), h4);
+
+  v->addLayout (form);
+
+  // connections
+  connect (cb_affine, &QCheckBox::toggled, this, [this] (bool on) {
+    if (auto f = engine->find_filter ("affine"))
+      f->set_enabled (on);
+  });
+
+  connect (sl_affine_angle, &QSlider::valueChanged, this, [this] (int v) {
+    lb_affine_angle->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::affine> (
+      engine->find_filter ("affine"));
+    if (f) f->set_angle (v);
+  });
+
+  connect (sl_affine_scale, &QSlider::valueChanged, this, [this] (int v) {
+    const double s = v / 100.0;
+    lb_affine_scale->setText (QString::number (s, 'f', 2));
+    auto f = std::dynamic_pointer_cast<filters::affine> (
+      engine->find_filter ("affine"));
+    if (f) f->set_scale (s);
+  });
+
+  connect (sl_affine_tx, &QSlider::valueChanged, this, [this] (int v) {
+    lb_affine_tx->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::affine> (
+      engine->find_filter ("affine"));
+    if (f) f->set_tx (v);
+  });
+
+  connect (sl_affine_ty, &QSlider::valueChanged, this, [this] (int v) {
+    lb_affine_ty->setText (QString::number (v));
+    auto f = std::dynamic_pointer_cast<filters::affine> (
+      engine->find_filter ("affine"));
+    if (f) f->set_ty (v);
   });
 }
 

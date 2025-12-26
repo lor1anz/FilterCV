@@ -49,6 +49,7 @@ set(HEADERS
   include/filters/morphology.h
   include/filters/contours.h
   include/filters/keypoints.h
+  include/filters/affine.h
 
   include/filters/glitch.h
 
